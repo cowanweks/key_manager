@@ -1,30 +1,50 @@
 from .db import app, db
-from sqlalchemy import Integer, String, Boolean, ForeignKey
-from sqlalchemy.orm import Mapped, mapped_column
+from typing import List
+from sqlalchemy import Integer, String, Boolean, ForeignKey, TIMESTAMP,DATE
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-
-class User(db.Model):
-    user_id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    staff_no: Mapped[str] = mapped_column(ForeignKey("staff.staff_no"))
-    user_name: Mapped[str] = mapped_column(String,unique=False, nullable=False)
-    password: Mapped[str] = mapped_column(String,unique=False, nullable=False)
-
-class Department(db.Model):
-    department_id: Mapped[str] = mapped_column(String, primary_key=True, unique=True)
-    department: Mapped[str] = mapped_column(String, unique=False, nullable=False)
-    dept_head: Mapped[str] = mapped_column(ForeignKey("staff.staff_no"))
-    key_no: Mapped[str] = mapped_column(ForeignKey("key.key_no"))
 
 class Staff(db.Model):
+    __tablename__ = "staffs"
     staff_no: Mapped[str] = mapped_column(String, primary_key=True, unique=True)
+    department_id: Mapped[str] = mapped_column(String, unique=False, nullable=True)
     first_name: Mapped[str] = mapped_column(String, unique=False, nullable=False)
     last_name: Mapped[str] = mapped_column(String, unique=False, nullable=False)
     national_id_no: Mapped[str] = mapped_column(String, unique=True, nullable=False)
-    authorised: Mapped[str] = mapped_column(Boolean, unique=False, nullable=False, default=False)
+    authorised: Mapped[bool] = mapped_column(Boolean, unique=False, nullable=False, default=False)
+
+
+class User(db.Model):
+    __tablename__ = "users"
+    user_id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    staff_no: Mapped[str] = mapped_column(ForeignKey("staffs.staff_no"), unique=True, nullable=False)
+    user_name: Mapped[str] = mapped_column(String,unique=False, nullable=False)
+    password: Mapped[str] = mapped_column(String,unique=False, nullable=False)
+
+
+
+class Department(db.Model):
+    __tablename__ = "departments"
+    department_id: Mapped[str] = mapped_column(String, primary_key=True, unique=True)
+    department: Mapped[str] = mapped_column(String, unique=False, nullable=False)
+    department_head: Mapped[str] = mapped_column(ForeignKey("staffs.staff_no"))
+    keys: Mapped[List["Key"]] = relationship(backref="department")
+
 
 class Key(db.Model):
-    key_no: Mapped[str] = mapped_column(String, primary_key=True)
+    __tablename__ = "keys"
+    key_no: Mapped[str] = mapped_column(String, primary_key=True, nullable=False)
+    department_id: Mapped[str] = mapped_column(ForeignKey("departments.department_id"), unique=False, nullable=False)
     available: Mapped[int] = mapped_column(Boolean, unique=False, nullable=False, default=True)
+    description: Mapped[str] = mapped_column(String, unique=False, nullable=True)
+
+class Issue(db.Model):
+    __tablename__ = "key_issue"
+    issue_no: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    key_no: Mapped[str] = mapped_column(String,ForeignKey("keys.key_no"), unique=False)
+    staff_no: Mapped[str] = mapped_column(String, ForeignKey("staffs.staff_no"))
+    issue_date: Mapped[str] = mapped_column(TIMESTAMP(True), unique=False)
+    return_date: Mapped[str] = mapped_column(DATE, unique=False)
 
 
 with app.app_context():
