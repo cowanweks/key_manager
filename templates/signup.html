@@ -12,8 +12,18 @@
   </head>
   <body>
     <header>Make key management easy and efficient!</header>
-    <form action="" method="post">
-      <h2>Sign, in</h2>
+    <form action="/users" method="post">
+      <h2>Sign, up</h2>
+      <label for="staffno">
+        <p>Staff No {{name}}</p>
+        <select name="staffno" id="staffno">
+          {%for staff in staffs %}
+          <option value="{{staff.get('staff_no')}}">
+            {{staff.get('staff_no')}}
+          </option>
+          {% endfor %}
+        </select>
+      </label>
       <label for="username">
         <p>UserName</p>
         <input required type="text" name="username" id="username" />
@@ -27,7 +37,9 @@
         <input type="checkbox" name="rememberme" id="rememberme" /> Remember me?
       </label>
 
-      <button type="submit">Login</button>
+      <button type="submit">Signup</button>
+
+      <a href="/signin">Already have an accout ?</a>
     </form>
   </body>
 </html>

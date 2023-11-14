@@ -1,3 +1,4 @@
+from flask import flash, jsonify
 from bcrypt import hashpw, gensalt
 from .models import app, db, User, Staff, Department, Key,Issue
 from .errors import UniqueViolation
@@ -14,7 +15,8 @@ def get_departments():
     pass
 
 def get_staffs():
-    pass
+    staffs = Staff.query.all()
+    return staffs
 
 
 # post handles go below
@@ -31,6 +33,7 @@ def new_key(key: dict):
         return "Key added successfully!"
 
     except UniqueViolation as e:
+        flash("Key already exists!")
         return e.pgerror
 
 def new_user(user: dict):
@@ -46,6 +49,7 @@ def new_user(user: dict):
         return "User added successfully!"
 
     except UniqueViolation as e:
+        flash("User already exists!")
         return e.pgerror
 
 def new_department(department: dict):
@@ -59,6 +63,7 @@ def new_department(department: dict):
         return "Department added successfully!"
 
     except UniqueViolation as e:
+        flash("Department already exists!")
         return e.pgerror
 
 def new_staff(staff: dict):
@@ -73,7 +78,8 @@ def new_staff(staff: dict):
                        first_name=staff.get("firstname"),
                        last_name=staff.get("lastname"),
                        national_id_no=staff.get("nationalidno"),
-                       authorised= authorised)
+                       authorised= authorised, phone=staff.get("phone"),
+                       email=staff.get("email"), photo=staff.get("photo"))
     try:
 
         db.session.add(new_staff)
@@ -81,12 +87,12 @@ def new_staff(staff: dict):
         return "Staff added successfully!"
 
     except UniqueViolation as e:
+        flash("Staff already exists!")
         return e.pgerror
 
 
 def give_key(issuance):
     new_issuance = Issue(
-                        issue_no=issuance.get("issueno"),
                        key_no=issuance.get("keyno"),
                        staff_no=issuance.get("staffno"),
                        return_date=issuance.get("returndate")
@@ -98,6 +104,7 @@ def give_key(issuance):
         return "Key  issued successfully!"
 
     except UniqueViolation as e:
+        flash("Key already issued!")
         return e.pgerror
 
 # put handles go below

@@ -8,10 +8,27 @@ class Staff(db.Model):
     __tablename__ = "staffs"
     staff_no: Mapped[str] = mapped_column(String, primary_key=True, unique=True)
     department_id: Mapped[str] = mapped_column(String, unique=False, nullable=True)
+    department: Mapped["Department"] = relationship(backref="staff")
     first_name: Mapped[str] = mapped_column(String, unique=False, nullable=False)
     last_name: Mapped[str] = mapped_column(String, unique=False, nullable=False)
     national_id_no: Mapped[str] = mapped_column(String, unique=True, nullable=False)
+    photo: Mapped[str] = mapped_column(String, nullable=True)
+    email: Mapped[str] = mapped_column(String, unique=True, nullable=False)
+    phone: Mapped[str] = mapped_column(String, unique=True, nullable=False)
     authorised: Mapped[bool] = mapped_column(Boolean, unique=False, nullable=False, default=False)
+
+    def serialize(self):
+        return {
+            "staff_no":self.staff_no,
+            "department_id":self.department_id,
+            "first_name":self.first_name,
+            "last_name":self.last_name,
+            "national_id_no":self.national_id_no,
+            "photo":self.photo,
+            "email":self.email,
+            "phone":self.phone,
+            "authorised":self.authorised
+        }
 
 
 class User(db.Model):
@@ -27,7 +44,7 @@ class Department(db.Model):
     __tablename__ = "departments"
     department_id: Mapped[str] = mapped_column(String, primary_key=True, unique=True)
     department: Mapped[str] = mapped_column(String, unique=False, nullable=False)
-    department_head: Mapped[str] = mapped_column(ForeignKey("staffs.staff_no"))
+    department_head: Mapped[str] = mapped_column(ForeignKey("staffs.staff_no"), nullable=True)
     keys: Mapped[List["Key"]] = relationship(backref="department")
 
 
